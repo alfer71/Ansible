@@ -45,10 +45,6 @@
       command: systemctl list-units --type=service --state=active
       register: active_services
 
-    - name: List top 7 memory consuming processes
-      command: ps -eo pid,ppid,cmd,%mem,%cpu --sort=-%mem | head -n 8
-      register: top_memory_processes
-
     - name: List last 7 users login
       command: last -n 7
       register: last_logins
@@ -79,8 +75,6 @@
           {{ passwd.stdout }}
           Active Services:
           {{ active_services.stdout }}
-          Top 7 Memory Consuming Processes:
-          {{ top_memory_processes.stdout }}
           Last 7 User Logins:
           {{ last_logins.stdout }}
           Last Patch Date: {{ last_patch.stdout }}
