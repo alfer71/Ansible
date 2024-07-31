@@ -4,7 +4,6 @@
   remote_user: afernandez
   become: yes
   become_user: root
-
   vars:
     slack_webhook_url: "https://hooks.slack.com/services/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"
 
@@ -16,7 +15,7 @@
   - name: Debug dnf history output
     debug:
       var: dnf_history_output.stdout_lines
-
+  
   - name: Parse dnf history output for updates
     set_fact:
       update_entries: >
