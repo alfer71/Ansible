@@ -33,20 +33,6 @@
       register: nfs_cifs_mounts
       ignore_errors: yes
 
-    - name: Check if firewall is active
-      systemd:
-        name: firewalld
-        state: active
-      register: firewall_status
-      ignore_errors: yes
-
-    - name: Check if iptables service is active
-      systemd:
-        name: iptables
-        state: active
-      register: iptables_status
-      ignore_errors: yes
-
     - name: Display fstab file
       command: cat /etc/fstab
       register: fstab
@@ -92,18 +78,6 @@
           {{ mounted_filesystems.stdout }}
           NFS or CIFS Mounts:
           {{ nfs_cifs_mounts.stdout }}
-          Firewall Rules:
-          {% if firewall_status.state == 'running' %}
-          {{ firewall_rules.stdout }}
-          {% else %}
-          Firewall is not active.
-          {% endif %}
-          Iptables Rules:
-          {% if iptables_status.state == 'running' %}
-          {{ iptables_rules.stdout }}
-          {% else %}
-          Iptables service is not active.
-          {% endif %}
           Fstab File:
           {{ fstab.stdout }}
           Passwd File:
