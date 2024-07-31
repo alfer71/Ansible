@@ -40,11 +40,6 @@
       register: firewall_status
       ignore_errors: yes
 
-    - name: Save firewall rules if active
-      command: firewall-cmd --list-all
-      when: firewall_status.state == 'running'
-      register: firewall_rules
-
     - name: Check if iptables service is active
       systemd:
         name: iptables
@@ -84,11 +79,6 @@
     - name: List packages updated in the last patch
       command: yum history info "{{ last_patch.stdout }}"
       register: updated_packages
-
-    - name: Create updated packages file
-      copy:
-        content: "{{ updated_packages.stdout }}"
-        dest: /tmp/updated_packages.txt
 
     - name: Compile gathered information
       set_fact:
