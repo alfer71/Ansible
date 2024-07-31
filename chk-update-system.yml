@@ -6,33 +6,54 @@
   become_user: root
 
   vars:
-    current_date: "{{ lookup('pipe', 'date +%Y-%m-%d') }}"
-    slack_webhook_url: "https://hooks.slack.com/services/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"
+    slack_webhook_url: "https://hooks.slack.com/services/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"
 
   tasks:
   - name: Check last system update
     command: dnf history
     register: dnf_history_output
 
-  - name: Search for update information in dnf history
-    set_fact:
-      update_info: "{{ item }}"
-    with_items: "{{ dnf_history_output.stdout_lines }}"
-    when: current_date in item and ' U ' in item
-    register: update_info_search
+  - name: Debug dnf history output
+    debug:
+      var: dnf_history_output.stdout_lines
 
-  - name: Aggregate update information
+  - name: Parse dnf history output for updates
     set_fact:
-      update_info_aggregated: "{{ update_info_search.results | selectattr('ansible_facts.update_info', 'defined') | map(attribute='ansible_facts.update_info') | join('\n') }}"
+      update_entries: >
+        {{
+          dnf_history_output.stdout_lines
+          | select("search", " U ")
+          | map("regex_replace", "^\\s*(\\d+).*$", "\\1")
+          | list
+        }}
+
+  - name: Debug parsed update entries
+    debug:
+      var: update_entries
+
+  - name: Get latest update entry
+    set_fact:
+      latest_update_id: "{{ update_entries | max }}"
+
+  - name: Debug latest update id
+    debug:
+      var: latest_update_id
+
+  - name: Get details of the latest update entry
+    command: dnf history info "{{ latest_update_id }}"
+    register: latest_update_info
+
+  - name: Debug latest update info
+    debug:
+      var: latest_update_info.stdout
 
   - name: Format update information as table
     set_fact:
       update_info_table: |
-        *Update information for {{ current_date }} on host {{ inventory_hostname }}:*
+        *Latest update information on host {{ inventory_hostname }}:*
         ```
-        {{ update_info_aggregated }}
+        {{ latest_update_info.stdout }}
         ```
-    when: update_info_aggregated | length > 0
 
   - name: Prepare Slack message body for updates found
     set_fact:
@@ -42,17 +63,6 @@
             "text": update_info_table
           } | to_json
         }}
-    when: update_info_aggregated | length > 0
-
-  - name: Prepare Slack message body for no updates found
-    set_fact:
-      slack_message: >
-        {{
-          {
-            "text": "No update information found for date " ~ current_date ~ " on host " ~ inventory_hostname
-          } | to_json
-        }}
-    when: update_info_aggregated | length == 0
 
   - name: Send message to Slack
     uri:
