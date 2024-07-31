@@ -3,7 +3,7 @@
   hosts: prccnonprodservers
   become: yes
   vars:
-    slack_webhook: "T04TJ9UKY/B07AU7WRVNG/j1rD54rjh1D8z8MGRAO7ZDtd"  # Replace with your Slack webhook URL
+    slack_webhook: "https://hooks.slack.com/services/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"  # Replace with your Slack webhook URL
   tasks:
     - name: Gather hostname and IP address
       command: hostname
