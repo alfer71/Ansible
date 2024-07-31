@@ -45,29 +45,12 @@
       when: firewall_status.state == 'running'
       register: firewall_rules
 
-    - name: Save firewall rules to file
-      copy:
-        content: "{{ firewall_rules.stdout }}"
-        dest: /tmp/firewall_rules.txt
-      when: firewall_status.state == 'running'
-
     - name: Check if iptables service is active
       systemd:
         name: iptables
         state: active
       register: iptables_status
       ignore_errors: yes
-
-    - name: Save iptables rules if active
-      command: iptables-save
-      when: iptables_status.state == 'running'
-      register: iptables_rules
-
-    - name: Save iptables rules to file
-      copy:
-        content: "{{ iptables_rules.stdout }}"
-        dest: /tmp/iptables_rules.txt
-      when: iptables_status.state == 'running'
 
     - name: Display fstab file
       command: cat /etc/fstab
