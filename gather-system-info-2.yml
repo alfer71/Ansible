@@ -1,0 +1,105 @@
+---
+- name: Gather system information and send to Slack
+  hosts: rhel8_servers
+  become: yes
+  vars:
+    slack_webhook: "https://hooks.slack.com/services/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"  # Replace with your Slack webhook URL
+    slack_channel: "#sysadmin-unix-linux-team"  # Replace with your Slack channel
+
+  tasks:
+    - name: Gather hostname and IP address
+      command: hostname
+      register: hostname
+    - name: Gather IP address
+      command: hostname -I
+      register: ip_address
+
+    - name: Gather uptime
+      command: uptime -p
+      register: uptime
+
+    - name: Gather processor count
+      command: nproc
+      register: processor_count
+
+    - name: Gather total memory
+      command: free -h | grep Mem | awk '{print $2}'
+      register: total_memory
+
+    - name: Gather mounted filesystems
+      command: df -hT
+      register: mounted_filesystems
+
+    - name: Check for NFS or CIFS mounts
+      shell: "mount | grep -E 'nfs|cifs'"
+      register: nfs_cifs_mounts
+      ignore_errors: yes
+
+    - name: Display fstab file
+      command: cat /etc/fstab
+      register: fstab
+
+    - name: Display passwd file
+      command: cat /etc/passwd
+      register: passwd
+
+    - name: List active services
+      command: systemctl list-units --type=service --state=active
+      register: active_services
+
+    - name: List top 7 memory consuming processes
+      command: ps -eo pid,ppid,cmd,%mem,%cpu --sort=-%mem | head -n 8
+      register: top_memory_processes
+
+    - name: List last 7 users login
+      command: last -n 7
+      register: last_logins
+
+    - name: Check last patch date
+      command: yum history | awk 'NR==3{print $1}'
+      register: last_patch
+
+    - name: List packages updated in the last patch
+      command: yum history info "{{ last_patch.stdout }}"
+      register: updated_packages
+
+    - name: Compile gathered information
+      set_fact:
+        system_info: |
+          *Hostname:* {{ hostname.stdout }}
+          *IP Address:* {{ ip_address.stdout }}
+          *Uptime:* {{ uptime.stdout }}
+          *Processor Count:* {{ processor_count.stdout }}
+          *Total Memory:* {{ total_memory.stdout }}
+          *Mounted Filesystems:*
+          {{ mounted_filesystems.stdout }}
+          *NFS or CIFS Mounts:*
+          {{ nfs_cifs_mounts.stdout if nfs_cifs_mounts.stdout else 'None' }}
+          *Fstab File:*
+          {{ fstab.stdout }}
+          *Passwd File:*
+          {{ passwd.stdout }}
+          *Active Services:*
+          {{ active_services.stdout }}
+          *Top 7 Memory Consuming Processes:*
+          {{ top_memory_processes.stdout }}
+          *Last 7 User Logins:*
+          {{ last_logins.stdout }}
+          *Last Patch Date:* {{ last_patch.stdout }}
+          *Packages Updated During Last Patch:*
+          {{ updated_packages.stdout }}
+
+    - name: Send system information to Slack
+      community.general.slackapi:
+        token: "{{ slack_webhook }}"
+        msg: "{{ system_info }}"
+        channel: "{{ slack_channel }}"
+        username: "AnsibleBot"
+        icon_emoji: ":robot_face:"
+        link_names: true
+        parse: "full"
+        attachments:
+          - fallback: "System Information"
+            color: "#36a64f"
+            pretext: "Here is the system information:"
+            text: "{{ system_info }}"
