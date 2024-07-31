@@ -1,0 +1,64 @@
+---
+- hosts: prccnonprodservers
+  gather_facts: false
+  remote_user: afernandez
+  become: yes
+  become_user: root
+
+  vars:
+    current_date: "{{ lookup('pipe', 'date +%Y-%m-%d') }}"
+    slack_webhook_url: "https://hooks.slack.com/services/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"
+
+  tasks:
+  - name: Check last system update
+    command: dnf history
+    register: dnf_history_output
+
+  - name: Search for update information in dnf history
+    set_fact:
+      update_info: "{{ item }}"
+    with_items: "{{ dnf_history_output.stdout_lines }}"
+    when: current_date in item and ' U ' in item
+    register: update_info_search
+
+  - name: Aggregate update information
+    set_fact:
+      update_info_aggregated: "{{ update_info_search.results | selectattr('ansible_facts.update_info', 'defined') | map(attribute='ansible_facts.update_info') | join('\n') }}"
+
+  - name: Format update information as table
+    set_fact:
+      update_info_table: |
+        *Update information for {{ current_date }} on host {{ inventory_hostname }}:*
+        ```
+        {{ update_info_aggregated }}
+        ```
+    when: update_info_aggregated | length > 0
+
+  - name: Prepare Slack message body for updates found
+    set_fact:
+      slack_message: >
+        {{
+          {
+            "text": update_info_table
+          } | to_json
+        }}
+    when: update_info_aggregated | length > 0
+
+  - name: Prepare Slack message body for no updates found
+    set_fact:
+      slack_message: >
+        {{
+          {
+            "text": "No update information found for date " ~ current_date ~ " on host " ~ inventory_hostname
+          } | to_json
+        }}
+    when: update_info_aggregated | length == 0
+
+  - name: Send message to Slack
+    uri:
+      url: "{{ slack_webhook_url }}"
+      method: POST
+      headers:
+        Content-Type: "application/json"
+      body: "{{ slack_message }}"
+      status_code: 200
