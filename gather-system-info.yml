@@ -1,0 +1,156 @@
+---
+- name: Gather system information and send to Slack
+  hosts: rhel8_servers
+  become: yes
+  vars:
+    slack_webhook: "https://hooks.slack.com/services/your/slack/webhook"  # Replace with your Slack webhook URL
+
+  tasks:
+    - name: Gather hostname and IP address
+      command: hostname
+      register: hostname
+    - name: Gather IP address
+      command: hostname -I
+      register: ip_address
+
+    - name: Gather uptime
+      command: uptime -p
+      register: uptime
+
+    - name: Gather processor count
+      command: nproc
+      register: processor_count
+
+    - name: Gather total memory
+      command: free -h | grep Mem | awk '{print $2}'
+      register: total_memory
+
+    - name: Gather mounted filesystems
+      command: df -hT
+      register: mounted_filesystems
+
+    - name: Check for NFS or CIFS mounts
+      shell: "mount | grep -E 'nfs|cifs'"
+      register: nfs_cifs_mounts
+      ignore_errors: yes
+
+    - name: Check if firewall is active
+      systemd:
+        name: firewalld
+        state: active
+      register: firewall_status
+      ignore_errors: yes
+
+    - name: Save firewall rules if active
+      command: firewall-cmd --list-all
+      when: firewall_status.state == 'running'
+      register: firewall_rules
+
+    - name: Save firewall rules to file
+      copy:
+        content: "{{ firewall_rules.stdout }}"
+        dest: /tmp/firewall_rules.txt
+      when: firewall_status.state == 'running'
+
+    - name: Check if iptables service is active
+      systemd:
+        name: iptables
+        state: active
+      register: iptables_status
+      ignore_errors: yes
+
+    - name: Save iptables rules if active
+      command: iptables-save
+      when: iptables_status.state == 'running'
+      register: iptables_rules
+
+    - name: Save iptables rules to file
+      copy:
+        content: "{{ iptables_rules.stdout }}"
+        dest: /tmp/iptables_rules.txt
+      when: iptables_status.state == 'running'
+
+    - name: Display fstab file
+      command: cat /etc/fstab
+      register: fstab
+
+    - name: Display passwd file
+      command: cat /etc/passwd
+      register: passwd
+
+    - name: List crontab jobs
+      command: crontab -l
+      register: crontab_jobs
+      ignore_errors: yes
+
+    - name: List active services
+      command: systemctl list-units --type=service --state=active
+      register: active_services
+
+    - name: List top 7 memory consuming processes
+      command: ps -eo pid,ppid,cmd,%mem,%cpu --sort=-%mem | head -n 8
+      register: top_memory_processes
+
+    - name: List last 7 users login
+      command: last -n 7
+      register: last_logins
+
+    - name: Check last patch date
+      command: yum history | awk 'NR==3{print $1}'
+      register: last_patch
+
+    - name: List packages updated in the last patch
+      command: yum history info "{{ last_patch.stdout }}"
+      register: updated_packages
+
+    - name: Create updated packages file
+      copy:
+        content: "{{ updated_packages.stdout }}"
+        dest: /tmp/updated_packages.txt
+
+    - name: Compile gathered information
+      set_fact:
+        system_info: |
+          Hostname: {{ hostname.stdout }}
+          IP Address: {{ ip_address.stdout }}
+          Uptime: {{ uptime.stdout }}
+          Processor Count: {{ processor_count.stdout }}
+          Total Memory: {{ total_memory.stdout }}
+          Mounted Filesystems:
+          {{ mounted_filesystems.stdout }}
+          NFS or CIFS Mounts:
+          {{ nfs_cifs_mounts.stdout }}
+          Firewall Rules:
+          {% if firewall_status.state == 'running' %}
+          {{ firewall_rules.stdout }}
+          {% else %}
+          Firewall is not active.
+          {% endif %}
+          Iptables Rules:
+          {% if iptables_status.state == 'running' %}
+          {{ iptables_rules.stdout }}
+          {% else %}
+          Iptables service is not active.
+          {% endif %}
+          Fstab File:
+          {{ fstab.stdout }}
+          Passwd File:
+          {{ passwd.stdout }}
+          Crontab Jobs:
+          {{ crontab_jobs.stdout }}
+          Active Services:
+          {{ active_services.stdout }}
+          Top 7 Memory Consuming Processes:
+          {{ top_memory_processes.stdout }}
+          Last 7 User Logins:
+          {{ last_logins.stdout }}
+          Last Patch Date: {{ last_patch.stdout }}
+          Packages Updated During Last Patch:
+          {{ updated_packages.stdout }}
+
+    - name: Send system information to Slack
+      community.general.slack:
+        token: "{{ slack_webhook }}"
+        msg: "{{ system_info }}"
+        channel: "#your-slack-channel"  # Replace with your Slack channel
+        username: "AnsibleBot"
