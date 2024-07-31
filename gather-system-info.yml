@@ -1,10 +1,9 @@
 ---
 - name: Gather system information and send to Slack
-  hosts: rhel8_servers
+  hosts: prccnonprodservers
   become: yes
   vars:
-    slack_webhook: "https://hooks.slack.com/services/your/slack/webhook"  # Replace with your Slack webhook URL
-
+    slack_webhook: "T04TJ9UKY/B07AU7WRVNG/j1rD54rjh1D8z8MGRAO7ZDtd"  # Replace with your Slack webhook URL
   tasks:
     - name: Gather hostname and IP address
       command: hostname
@@ -152,5 +151,5 @@
       community.general.slack:
         token: "{{ slack_webhook }}"
         msg: "{{ system_info }}"
-        channel: "#your-slack-channel"  # Replace with your Slack channel
+        channel: "#sysadmin-unix-linux-team"  # Replace with your Slack channel
         username: "AnsibleBot"
