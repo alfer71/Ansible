@@ -4,7 +4,7 @@
   tasks:
     - name: Send test message to Slack
       community.general.slack:
-        token: "https://hooks.slack.com/services/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"  # Replace with your Slack webhook URL
+        token: "https://hooks.slack.com/services/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"  # Replace with your Slack webhook URL
         msg: "This is a test message from Ansible."
         channel: "#sysadmin-unix-linux-team"  # Replace with your Slack channel
         username: "Ansible"
