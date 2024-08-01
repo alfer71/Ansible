@@ -3,7 +3,7 @@
   hosts: prccnonprodservers
   become: yes
   vars:
-    slack_webhook: "https://hooks.slack.com/services/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"  # Replace with your Slack webhook URL
+    slack_webhook: "https://hooks.slack.com/services"  # Replace with your Slack webhook URL
     slack_channel: "#sysadmin-unix-linux-team"  # Replace with your Slack channel
 
   tasks:
