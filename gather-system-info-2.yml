@@ -90,7 +90,7 @@
           {{ updated_packages.stdout }}
 
     - name: Send system information to Slack
-      community.general.slackapi:
+      community.general.slack:
         token: "{{ slack_webhook }}"
         msg: "{{ system_info }}"
         channel: "{{ slack_channel }}"
