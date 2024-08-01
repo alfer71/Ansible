@@ -1,6 +1,6 @@
 ---
 - name: Gather system information and send to Slack
-  hosts: rhel8_servers
+  hosts: prccnonprodservers
   become: yes
   vars:
     slack_webhook: "https://hooks.slack.com/services/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"  # Replace with your Slack webhook URL
