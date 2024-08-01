@@ -5,7 +5,7 @@
   become: yes
   become_user: root
   vars:
-    slack_webhook_url: "https://hooks.slack.com/services/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"
+    slack_webhook_url: "https://hooks.slack.com/services"
 
   tasks:
   - name: Check last system update
