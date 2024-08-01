@@ -83,6 +83,10 @@
           *Packages Updated During Last Patch:*
           {{ updated_packages.stdout }}
 
+    - name: Debug system information
+      debug:
+        var: system_info
+
     - name: Send system information to Slack
       community.general.slack:
         token: "{{ slack_webhook }}"
