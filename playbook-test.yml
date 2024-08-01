@@ -1,13 +1,15 @@
 ---
 - name: Test Slack notification
   hosts: prccnonprodservers
+  vars_files:
+    - vault.yml
   tasks:
     - name: Send test message to Slack
       community.general.slack:
-        token: "https://hooks.slack.com/"  # Replace with your Slack webhook URL
+        token: "{{ slack_webhook }}"
         msg: "This is a test message from Ansible."
-        channel: "#sysadmin-unix-linux-team"  # Replace with your Slack channel
-        username: "Ansible"
+        channel: "Alberto Fernandez"  # Replace with your Slack channel
+        username: "AnsibleBot"
         icon_emoji: ":robot_face:"
         link_names: true
         parse: "full"
