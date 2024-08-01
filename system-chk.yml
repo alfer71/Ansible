@@ -3,7 +3,7 @@
   hosts: prccnonprodservers
   become: yes
   vars:
-    slack_webhook_url: "https://hooks.slack.com/services/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"
+    slack_webhook_url: "https://hooks.slack.com/services"
     output_file: "/tmp/system_info.txt"
     firewall_rules_file: "/tmp/firewall_rules.txt"
     iptables_rules_file: "/tmp/iptables_rules.txt"
