@@ -74,6 +74,10 @@
           - "*Last Patch Date:* {{ last_patch.stdout }}"
           - "*Packages Updated During Last Patch:*\n{{ updated_packages.stdout }}"
 
+    - name: Debug system information parts
+      debug:
+        var: system_info_parts
+
     - name: Send system information to Slack (part 1)
       community.general.slack:
         token: "{{ slack_webhook }}"
