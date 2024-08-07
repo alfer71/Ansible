@@ -3,7 +3,9 @@
   hosts: prccnonprodservers
   become: yes
   vars:
-    web_output_dir: /path/to/web_output
+    dest_base_path: "/home/ubuntu/share-docker/html-report"
+    src_path: "/tmp/server_info"
+
   tasks:
     - name: Ensure output directory exists on remote
       file:
@@ -125,26 +127,20 @@
         - /tmp/server_info/system_info.html
         - /tmp/server_info/last_updated_packages.html
 
-    - name: Ensure local output directory exists
+    - name: Set current date
+      set_fact:
+        current_date: "{{ lookup('pipe', 'date +%Y-%m-%d') }}"
+
+    - name: Create directory with the current date
       file:
-        path: "/tmp/server_info/{{ ansible_date_time.date }}"
+        path: "{{ dest_base_path }}/{{ current_date }}"
         state: directory
         mode: '0755'
 
-    - name: Fetch complete_info.html files from remote servers
-      fetch:
-        src: /tmp/server_info/complete_info.html
-        dest: "/tmp/server_info/{{ ansible_date_time.date }}/complete_info_{{ inventory_hostname }}.html"
-        flat: yes
-
-    - name: Create main webpage with links to each server
-      template:
-        src: index.html.j2
-        dest: "/tmp/server_info/{{ ansible_date_time.date }}/index.html"
-
-    - name: Copy directory to nginx server
+    - name: Copy HTML files to the directory with the current date
       copy:
-        src: "/tmp/server_info/{{ ansible_date_time.date }}"
-        dest: /usr/share/nginx/html
+        src: "{{ src_path }}/"
+        dest: "{{ dest_base_path }}/{{ current_date }}/"
+        mode: '0644'
         remote_src: yes
-      delegate_to: nginx-semaphore
+        ignore_errors: yes
