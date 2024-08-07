@@ -143,4 +143,4 @@
         dest: "{{ dest_base_path }}/{{ current_date }}/"
         mode: '0644'
         remote_src: yes
-        ignore_errors: yes
+
