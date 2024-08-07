@@ -1,6 +1,8 @@
 ---
 - name: Gather information from RHEL8 server and create web pages
   hosts: prccnonprodservers
+  remote_user: ubuntu
+  become_method: sudo
   become: yes
   vars:
     dest_base_path: "/home/ubuntu/share-docker/html-report"
