@@ -1,0 +1,113 @@
+---
+- name: Gather information from RHEL8 server
+  hosts: prccnonprodservers
+  become: yes
+  tasks:
+    - name: Ensure output directory exists
+      file:
+        path: /tmp/server_info
+        state: directory
+        mode: '0755'
+
+    - name: Gather hostname and IP address
+      shell: |
+        echo "Hostname: $(hostname)" > /tmp/server_info/system_info.txt
+        echo "IP Address: $(hostname -I)" >> /tmp/server_info/system_info.txt
+
+    - name: Check uptime
+      shell: |
+        echo "Uptime:" >> /tmp/server_info/system_info.txt
+        uptime >> /tmp/server_info/system_info.txt
+
+    - name: Check number of processors
+      shell: |
+        echo "Processors:" >> /tmp/server_info/system_info.txt
+        nproc >> /tmp/server_info/system_info.txt
+
+    - name: Check memory
+      shell: |
+        echo "Memory:" >> /tmp/server_info/system_info.txt
+        free -h >> /tmp/server_info/system_info.txt
+
+    - name: Check local filesystems
+      shell: |
+        echo "Local Filesystems:" >> /tmp/server_info/system_info.txt
+        df -h --exclude-type=tmpfs --exclude-type=devtmpfs --exclude-type=nfs --exclude-type=cifs >> /tmp/server_info/system_info.txt
+
+    - name: Check NFS and CIFS mounts
+      shell: |
+        echo "NFS and CIFS mounts:" >> /tmp/server_info/system_info.txt
+        df -hT | grep -E 'nfs|cifs' >> /tmp/server_info/system_info.txt
+
+    - name: Check firewall status and save rules if active
+      shell: |
+        echo "Firewall status:" >> /tmp/server_info/system_info.txt
+        firewall-cmd --state >> /tmp/server_info/system_info.txt && firewall-cmd --list-all > /tmp/server_info/firewall_rules.txt || echo "Firewall is not running" >> /tmp/server_info/system_info.txt
+
+    - name: Check iptables status and save rules if active
+      shell: |
+        echo "Iptables status:" >> /tmp/server_info/system_info.txt
+        systemctl is-active iptables >> /tmp/server_info/system_info.txt && iptables-save > /tmp/server_info/iptables_rules.txt || echo "Iptables is not running" >> /tmp/server_info/system_info.txt
+
+    - name: Display fstab content
+      shell: |
+        echo "fstab content:" >> /tmp/server_info/system_info.txt
+        cat /etc/fstab >> /tmp/server_info/system_info.txt
+
+    - name: Display passwd content
+      shell: |
+        echo "passwd content:" >> /tmp/server_info/system_info.txt
+        cat /etc/passwd >> /tmp/server_info/system_info.txt
+
+    - name: List crontab jobs
+      shell: |
+        echo "Crontab jobs:" >> /tmp/server_info/system_info.txt
+        crontab -l >> /tmp/server_info/system_info.txt || echo "No crontab for root" >> /tmp/server_info/system_info.txt
+
+    - name: Check active services
+      shell: |
+        echo "Active services:" >> /tmp/server_info/system_info.txt
+        systemctl list-units --type=service --state=active >> /tmp/server_info/system_info.txt
+
+    - name: Top 7 memory consuming processes
+      shell: |
+        echo "Top 7 memory consuming processes:" >> /tmp/server_info/system_info.txt
+        ps aux --sort=-%mem | head -n 8 >> /tmp/server_info/system_info.txt
+
+    - name: Top 7 CPU consuming processes
+      shell: |
+        echo "Top 7 CPU consuming processes:" >> /tmp/server_info/system_info.txt
+        ps aux --sort=-%cpu | head -n 8 >> /tmp/server_info/system_info.txt
+
+    - name: Last 7 users that logged in
+      shell: |
+        echo "Last 7 users that logged in:" >> /tmp/server_info/system_info.txt
+        last -n 7 >> /tmp/server_info/system_info.txt
+
+    - name: Check when the system was last patched
+      shell: |
+        echo "Last system patch:" >> /tmp/server_info/system_info.txt
+        rpm -qa --last | head -n 1 >> /tmp/server_info/system_info.txt
+
+    - name: Create file with last updated packages
+      shell: |
+        echo "Last updated packages:" > /tmp/server_info/last_updated_packages.txt
+        rpm -qa --last >> /tmp/server_info/last_updated_packages.txt
+
+    - name: Merge all output into a single file
+      shell: |
+        cat /tmp/server_info/system_info.txt > /tmp/server_info/complete_info.txt
+        if [ -f /tmp/server_info/firewall_rules.txt ]; then echo -e "\nFirewall Rules:" >> /tmp/server_info/complete_info.txt && cat /tmp/server_info/firewall_rules.txt >> /tmp/server_info/complete_info.txt; fi
+        if [ -f /tmp/server_info/iptables_rules.txt ]; then echo -e "\nIptables Rules:" >> /tmp/server_info/complete_info.txt && cat /tmp/server_info/iptables_rules.txt >> /tmp/server_info/complete_info.txt; fi
+        echo -e "\nLast Updated Packages:" >> /tmp/server_info/complete_info.txt
+        cat /tmp/server_info/last_updated_packages.txt >> /tmp/server_info/complete_info.txt
+
+    - name: Clean up temporary files
+      file:
+        path: "{{ item }}"
+        state: absent
+      loop:
+        - /tmp/server_info/system_info.txt
+        - /tmp/server_info/firewall_rules.txt
+        - /tmp/server_info/iptables_rules.txt
+        - /tmp/server_info/last_updated_packages.txt
