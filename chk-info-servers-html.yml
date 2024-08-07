@@ -1,6 +1,6 @@
 ---
 - name: Gather information from RHEL8 server and create web pages
-  hosts: prccnonprodservers
+  hosts: webservers
   become: yes
   vars:
     web_output_dir: /path/to/web_output
@@ -125,9 +125,12 @@
         - /tmp/server_info/system_info.html
         - /tmp/server_info/last_updated_packages.html
 
+- name: Fetch information and create main webpage
+  hosts: localhost
+  tasks:
     - name: Ensure local output directory exists
       file:
-        path: /tmp/server_info
+        path: /path/to/web_output
         state: directory
         mode: '0755'
 
@@ -136,8 +139,6 @@
         src: /tmp/server_info/complete_info.html
         dest: /tmp/server_info/complete_info_{{ inventory_hostname }}.html
         flat: yes
-      delegate_to: "{{ inventory_hostname }}"
-      run_once: true
 
     - name: Create main webpage with links to each server
       template:
