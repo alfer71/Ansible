@@ -125,12 +125,9 @@
         - /tmp/server_info/system_info.html
         - /tmp/server_info/last_updated_packages.html
 
-- name: Fetch information and create main webpage
-  hosts: localhost
-  tasks:
-    - name: Ensure local output directory exists
+    - name: Fetch information and create main webpage Ensure local output directory exists
       file:
-        path: /path/to/web_output
+        path: /tmp/server_info
         state: directory
         mode: '0755'
 
