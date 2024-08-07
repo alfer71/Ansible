@@ -139,19 +139,7 @@
         mode: '0755'
 
     - name: Create main webpage with links to each server
-      local_action: copy
-      content: |
-        <html>
-        <head>
-            <title>PRCC NON-PROD SERVERS</title>
-        </head>
-        <body>
-            <h1>PRCC NON-PROD SERVERS</h1>
-            <ul>
-            {% for host in ansible_play_hosts %}
-                <li><a href="complete_info_{{ host }}.html">{{ host }}</a></li>
-            {% endfor %}
-            </ul>
-        </body>
-        </html>
-      dest: "{{ web_output_dir }}/index.html"
+      template:
+        src: index.html.j2
+        dest: "{{ web_output_dir }}/index.html"
+
