@@ -127,7 +127,7 @@
 
     - name: Ensure local output directory exists
       file:
-        path: /tmp/server_info/web-output
+        path: /tmp/server_info
         state: directory
         mode: '0755'
 
@@ -142,4 +142,4 @@
     - name: Create main webpage with links to each server
       template:
         src: index.html.j2
-        dest: /tmp/server_info/web_output/index.html
+        dest: /tmp/server_info/index.html
