@@ -125,12 +125,6 @@
         - /tmp/server_info/system_info.html
         - /tmp/server_info/last_updated_packages.html
 
-    - name: Fetch complete_info.html to local machine and rename with hostname
-      fetch:
-        src: /tmp/server_info/complete_info.html
-        dest: "{{ web_output_dir }}/complete_info_{{ ansible_hostname }}.html"
-        flat: yes
-
     - name: Ensure local output directory exists
       local_action:
         module: file
@@ -138,8 +132,15 @@
         state: directory
         mode: '0755'
 
+    - name: Fetch complete_info.html to local machine and rename with hostname
+      fetch:
+        src: /tmp/server_info/complete_info.html
+        dest: "{{ web_output_dir }}/complete_info_{{ ansible_hostname }}.html"
+        flat: yes
+
     - name: Create main webpage with links to each server
       template:
         src: index.html.j2
         dest: "{{ web_output_dir }}/index.html"
+
 
