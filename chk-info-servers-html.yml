@@ -126,21 +126,20 @@
         - /tmp/server_info/last_updated_packages.html
 
     - name: Ensure local output directory exists
-      local_action:
-        module: file
-        path: "{{ web_output_dir }}"
+      file:
+        path: /path/to/web_output
         state: directory
         mode: '0755'
 
-    - name: Fetch complete_info.html to local machine and rename with hostname
+    - name: Fetch complete_info.html files from remote servers
       fetch:
         src: /tmp/server_info/complete_info.html
-        dest: "{{ web_output_dir }}/complete_info_{{ ansible_hostname }}.html"
+        dest: /path/to/web_output/complete_info_{{ inventory_hostname }}.html
         flat: yes
+      delegate_to: "{{ inventory_hostname }}"
+      run_once: true
 
     - name: Create main webpage with links to each server
       template:
         src: index.html.j2
-        dest: "{{ web_output_dir }}/index.html"
-
-
+        dest: /path/to/web_output/index.html
