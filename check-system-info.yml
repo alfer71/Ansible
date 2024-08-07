@@ -112,8 +112,8 @@
         - /tmp/server_info/iptables_rules.txt
         - /tmp/server_info/last_updated_packages.txt
 
-    - name: Fetch complete_info.txt to local machine
+    - name: Fetch complete_info.txt to local machine and rename with hostname
       fetch:
         src: /tmp/server_info/complete_info.txt
-        dest: ./server_info/
+        dest: "/tmp/server_info/complete_info_{{ ansible_hostname }}.txt"
         flat: yes
