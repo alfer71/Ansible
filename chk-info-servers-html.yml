@@ -1,6 +1,6 @@
 ---
 - name: Gather information from RHEL8 server and create web pages
-  hosts: webservers
+  hosts: prccnonprodservers
   become: yes
   vars:
     web_output_dir: /path/to/web_output
