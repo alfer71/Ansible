@@ -111,3 +111,9 @@
         - /tmp/server_info/firewall_rules.txt
         - /tmp/server_info/iptables_rules.txt
         - /tmp/server_info/last_updated_packages.txt
+
+    - name: Fetch complete_info.txt to local machine
+      fetch:
+        src: /tmp/server_info/complete_info.txt
+        dest: ./server_info/
+        flat: yes
