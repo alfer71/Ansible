@@ -1,7 +1,7 @@
 ---
 - name: Gather information from RHEL8 server and create web pages
   hosts: prccnonprodservers
-  remote_user: ubuntu
+  remote_user: afernandez
   become_method: sudo
   become: yes
   vars:
