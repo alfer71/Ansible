@@ -1,5 +1,5 @@
 ---
-- hosts: srsunonprodervers
+- hosts: srsunonprodservers
   gather_facts: False
   remote_user: axf24lz
   tasks:
