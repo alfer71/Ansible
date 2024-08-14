@@ -1,6 +1,6 @@
 ---
 - name: Install Nagios on Ubuntu 22.04
-  hosts: all
+  hosts: nagioswebserver
   become: yes
 
   tasks:
