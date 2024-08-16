@@ -5,7 +5,7 @@
   become_method: sudo
   become: yes
   vars:
-    dest_base_path: "/home/afernandez/html-report"
+    dest_base_path: "/root/html-report"
     src_path: "/tmp/server_info"
 
   tasks:
