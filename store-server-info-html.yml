@@ -129,9 +129,20 @@
         - /tmp/server_info/system_info.html
         - /tmp/server_info/last_updated_packages.html
 
+    - name: Ensure base destination directory exists
+      file:
+        path: "{{ dest_base_path }}"
+        state: directory
+        mode: '0775'
+      become: yes
+
     - name: Set current date
       set_fact:
         current_date: "{{ lookup('pipe', 'date +%Y-%m-%d') }}"
+
+    - name: Debug current date
+      debug:
+        msg: "Current date is {{ current_date }}"
 
     - name: Create directory with the current date
       file:
@@ -139,7 +150,6 @@
         state: directory
         mode: '0775'
       become: yes
-      become_user: root
 
     - name: Copy HTML files to the directory with the current date
       copy:
@@ -148,4 +158,3 @@
         mode: '0775'
         remote_src: yes
       become: yes
-      become_user: root
