@@ -1,0 +1,44 @@
+---
+- name: Destroy AWS EC2 instance using Terraform
+  hosts: localhost
+  gather_facts: no
+
+  vars:
+    repo_url: "https://github.com/alfer71/terraform.git"
+    repo_branch: "HAMPS"
+    local_path: "/home/semaphore/playbooks/terraform"
+
+  tasks:
+    - name: Ensure the local directory exists
+      ansible.builtin.file:
+        path: "{{ local_path }}"
+        state: directory
+
+    - name: Clone the Terraform repository
+      ansible.builtin.git:
+        repo: "{{ repo_url }}"
+        dest: "{{ local_path }}"
+        version: "{{ repo_branch }}"
+        force: yes
+
+    - name: Initialize Terraform
+      ansible.builtin.command:
+        cmd: terraform init
+      args:
+        chdir: "{{ local_path }}"
+
+    - name: Run Terraform destroy
+      ansible.builtin.command:
+        cmd: terraform destroy -auto-approve
+      args:
+        chdir: "{{ local_path }}"
+
+    - name: Clean up Terraform state files
+      ansible.builtin.command:
+        cmd: rm -rf .terraform/ terraform.tfstate* .terraform.lock.hcl
+      args:
+        chdir: "{{ local_path }}"
+      when: cleanup_state_files | default(true)
+
+  vars:
+    cleanup_state_files: true
