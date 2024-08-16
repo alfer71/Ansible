@@ -121,13 +121,13 @@
         cat /tmp/server_info/system_info.html > /tmp/server_info/complete_info.html
         cat /tmp/server_info/last_updated_packages.html >> /tmp/server_info/complete_info.html
 
-    - name: Clean up temporary files
-      file:
-        path: "{{ item }}"
-        state: absent
-      loop:
-        - /tmp/server_info/system_info.html
-        - /tmp/server_info/last_updated_packages.html
+#    - name: Clean up temporary files
+#      file:
+#        path: "{{ item }}"
+#        state: absent
+#      loop:
+#        - /tmp/server_info/system_info.html
+#        - /tmp/server_info/last_updated_packages.html
 
     - name: Ensure base destination directory exists
       file:
