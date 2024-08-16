@@ -5,3 +5,6 @@
 
 2. Install Nagios core 4.5.4 on Ubuntu 22.04
 - inst-nagios.yml
+
+3. Delete AWS EC2 Linux Ubuntu Instance
+- terrraform-destroy.yml
