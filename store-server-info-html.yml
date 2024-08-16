@@ -137,12 +137,15 @@
       file:
         path: "{{ dest_base_path }}/{{ current_date }}"
         state: directory
-        mode: '0755'
+        mode: '0775'
+      become: yes
+      become_user: root
 
     - name: Copy HTML files to the directory with the current date
       copy:
         src: "{{ src_path }}/"
         dest: "{{ dest_base_path }}/{{ current_date }}/"
-        mode: '0644'
+        mode: '0775'
         remote_src: yes
-
+      become: yes
+      become_user: root
