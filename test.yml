@@ -16,7 +16,7 @@
     - name: Fetch the passwd file from the remote host
       ansible.builtin.fetch:
         src: /etc/passwd
-        dest: "{{ dest_base_path }}/{{ current_date }}/passwd"
+        dest: "{{ dest_base_path }}/{{ current_date }}/{{ inventory_hostname }}_passwd"
         flat: yes
       become: yes
       become_method: sudo
