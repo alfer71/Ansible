@@ -18,7 +18,5 @@
         src: /etc/passwd
         dest: "{{ dest_base_path }}/{{ current_date }}/passwd"
         flat: yes
-      delegate_to: "{{ remote_host }}"
-      remote_user: "{{ remote_user }}"
       become: yes
       become_method: sudo
