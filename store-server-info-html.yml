@@ -5,7 +5,7 @@
   become_method: sudo
   become: yes
   vars:
-    dest_base_path: "/shared/html-report"
+    dest_base_path: "/home/afernandez/html-report"
     src_path: "/tmp/server_info"
 
   tasks:
@@ -150,7 +150,6 @@
         state: directory
         mode: '0775'
       become: yes
-      become_user: root
 
     - name: Copy HTML files to the directory with the current date
       copy:
@@ -159,4 +158,3 @@
         mode: '0775'
         remote_src: yes
       become: yes
-      become_user: root
