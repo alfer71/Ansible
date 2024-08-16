@@ -1,6 +1,7 @@
 ---
 - name: Test directory creation and file copying
   hosts: prccnonprodservers
+  remote_user: afernandez
   vars:
     dest_base_path: "/tmp/html-report"
     src_path: "/tmp/server_info"
