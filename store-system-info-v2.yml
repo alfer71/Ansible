@@ -136,18 +136,21 @@
       become: yes
       become_method: sudo
 
-    - name: Create index.html file with a directory link
+    - name: Create the initial index.html structure
       shell: |
         echo "<html>" > "{{ dest_base_path }}/index.html"
         echo "<body>" >> "{{ dest_base_path }}/index.html"
         echo "<h2>Reports</h2>" >> "{{ dest_base_path }}/index.html"
         echo "<p><a href='{{ current_date }}/'>{{ current_date }}</a></p>" >> "{{ dest_base_path }}/index.html"
         echo "<ul>" >> "{{ dest_base_path }}/index.html"
-        {% for host in ansible_play_hosts %}
-        echo "<li><a href='{{ current_date }}/{{ host }}_complete_info.html'>{{ host }}_complete_info.html</a></li>" >> "{{ dest_base_path }}/index.html"
-        {% endfor %}
+
+    - name: Add links to each server's HTML report
+      shell: |
+        echo "<li><a href='{{ current_date }}/{{ inventory_hostname }}_complete_info.html'>{{ inventory_hostname }}_complete_info.html</a></li>" >> "{{ dest_base_path }}/index.html"
+      with_items: "{{ ansible_play_hosts }}"
+
+    - name: Close the index.html structure
+      shell: |
         echo "</ul>" >> "{{ dest_base_path }}/index.html"
         echo "</body>" >> "{{ dest_base_path }}/index.html"
         echo "</html>" >> "{{ dest_base_path }}/index.html"
-      become: yes
-      become_method: sudo
