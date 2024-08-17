@@ -161,6 +161,28 @@
           </body>
           </html>
 
-    - name: Debug paths
-      debug:
-        msg: "dest_base_path={{ dest_base_path }}, current_date={{ current_date }}, inventory_hostname={{ inventory_hostname }}"
+    # Debugging tasks
+    - name: Verify index.html creation
+      stat:
+        path: "{{ dest_base_path }}/index.html"
+      register: index_file
+
+    - name: Fail if index.html was not created
+      fail:
+        msg: "index.html file was not created!"
+      when: not index_file.stat.exists
+
+    - name: Set permissions for the destination directory
+      file:
+        path: "{{ dest_base_path }}"
+        state: directory
+        mode: '0755'
+        owner: "{{ ansible_user_id }}"
+        group: "{{ ansible_user_gid }}"
+
+    - name: Create a test index.html file
+      shell: "echo 'Test HTML creation' > {{ dest_base_path }}/test_index.html"
+
+    - name: Run a local command to create a file
+      command: "echo 'Local test file creation' > /tmp/local_test_file.html"
+      delegate_to: localhost
