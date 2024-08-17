@@ -149,3 +149,5 @@
         echo "</ul>" >> "{{ dest_base_path }}/index.html"
         echo "</body>" >> "{{ dest_base_path }}/index.html"
         echo "</html>" >> "{{ dest_base_path }}/index.html"
+      become: yes
+      become_method: sudo
