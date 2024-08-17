@@ -160,3 +160,7 @@
           </ul>
           </body>
           </html>
+
+    - name: Debug paths
+      debug:
+        msg: "dest_base_path={{ dest_base_path }}, current_date={{ current_date }}, inventory_hostname={{ inventory_hostname }}"
