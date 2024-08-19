@@ -107,9 +107,10 @@
 
     - name: Check when the system was last patched
       shell: |
-        echo "<h3>Last system patch:</h3><p>" >> "{{ src_path }}/system_info.html"
-        dnf history |grep update >> "{{ src_path }}/system_info.html"
-        echo "</p>" >> "{{ src_path }}/system_info.html"
+        echo "<h3>Last system patch:</h3>" >> "{{ src_path }}/system_info.html"
+        echo "<pre>" >> "{{ src_path }}/system_info.html"
+        dnf history | grep update >> "{{ src_path }}/system_info.html"
+        echo "</pre>" >> "{{ src_path }}/system_info.html"
 
     - name: Create file with last updated packages
       shell: |
