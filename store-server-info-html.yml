@@ -5,7 +5,7 @@
   become_method: sudo
   become: yes
   vars:
-    dest_base_path: "/tmp/html-report"
+    dest_base_path: "/tmp/html-report/prcc"
     src_path: "/tmp/server_info"
     current_date: "{{ lookup('pipe', 'date +%Y-%m-%d') }}"
 
@@ -127,8 +127,8 @@
         path: "{{ item }}"
         state: absent
       loop:
-        - /tmp/server_info/system_info.html
-        - /tmp/server_info/last_updated_packages.html
+        - "{{ src_path }}/system_info.html"
+        - "{{ src_path }}/last_updated_packages.html"
 
     - name: Create directory with the current date on the local host
       file:
