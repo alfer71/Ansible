@@ -108,7 +108,7 @@
     - name: Check when the system was last patched
       shell: |
         echo "<h3>Last system patch:</h3><p>" >> "{{ src_path }}/system_info.html"
-        rpm -qa --last | head -n 1 >> "{{ src_path }}/system_info.html"
+        dnf history |grep update >> "{{ src_path }}/system_info.html"
         echo "</p>" >> "{{ src_path }}/system_info.html"
 
     - name: Create file with last updated packages
@@ -122,13 +122,13 @@
         cat "{{ src_path }}/system_info.html" > "{{ src_path }}/complete_info.html"
         cat "{{ src_path }}/last_updated_packages.html" >> "{{ src_path }}/complete_info.html"
 
-#    - name: Clean up temporary files
-#      file:
-#        path: "{{ item }}"
-#        state: absent
-#      loop:
-#        - /tmp/server_info/system_info.html
-#        - /tmp/server_info/last_updated_packages.html
+    - name: Clean up temporary files
+      file:
+        path: "{{ item }}"
+        state: absent
+      loop:
+        - /tmp/server_info/system_info.html
+        - /tmp/server_info/last_updated_packages.html
 
     - name: Create directory with the current date on the local host
       file:
