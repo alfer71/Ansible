@@ -1,6 +1,6 @@
 ---
 - name: Install Apache, MySQL, and PHP on Ubuntu 22.04
-  hosts: awssanbox
+  hosts: nagioswebserver
   become: yes
 
   tasks:
@@ -13,6 +13,22 @@
       apt:
         name: apache2
         state: present
+
+    - name: Verify Apache Installation
+      command: dpkg -l | grep apache2
+      register: apache_installed
+      ignore_errors: yes
+
+    - name: Debug Apache Installation
+      debug:
+        var: apache_installed
+
+    - name: Ensure Apache is started and enabled
+      systemd:
+        name: apache2
+        enabled: yes
+        state: started
+      when: apache_installed.rc == 0
 
     - name: Install MySQL
       apt:
@@ -30,12 +46,6 @@
           - php-gd
         state: present
 
-    - name: Ensure Apache is started and enabled
-      systemd:
-        name: apache2
-        enabled: yes
-        state: started
-
     - name: Ensure MySQL is started and enabled
       systemd:
         name: mysql
@@ -46,6 +56,7 @@
       systemd:
         name: apache2
         state: restarted
+      when: apache_installed.rc == 0
 
     - name: Set MySQL root password
       mysql_user:
@@ -86,3 +97,4 @@
         state: present
         login_user: root
         login_password: 'H@mpsh1r3DB'
+
