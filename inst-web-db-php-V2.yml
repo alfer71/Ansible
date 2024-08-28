@@ -58,6 +58,7 @@
         password: 'H@mpsh1r3DB'
         login_unix_socket: /var/run/mysqld/mysqld.sock
         state: present
+        column_case_sensitive: false
 
     - name: Remove anonymous MySQL users
       mysql_user:
