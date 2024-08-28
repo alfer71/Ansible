@@ -33,7 +33,7 @@
           - gettext
         state: present
 
-    - name: Create Nagios user
+    - name: Create Nagios user and group
       user:
         name: nagios
         shell: /bin/bash
@@ -42,7 +42,6 @@
     - name: Create nagcmd group
       group:
         name: nagcmd
-        state: present
 
     - name: Add nagios user to nagcmd group
       user:
@@ -73,29 +72,29 @@
         chdir: /tmp/nagios-4.5.4
 
     - name: Compile Nagios
-      command: make all
-      args:
+      make:
         chdir: /tmp/nagios-4.5.4
+        target: all
 
     - name: Install Nagios core binaries and web interface files
-      command: make install
-      args:
+      make:
         chdir: /tmp/nagios-4.5.4
+        target: install
 
     - name: Install Nagios command mode
-      command: make install-commandmode
-      args:
+      make:
         chdir: /tmp/nagios-4.5.4
+        target: install-commandmode
 
     - name: Install Nagios init script
-      command: make install-init
-      args:
+      make:
         chdir: /tmp/nagios-4.5.4
+        target: install-init
 
     - name: Install Nagios config files
-      command: make install-config
-      args:
+      make:
         chdir: /tmp/nagios-4.5.4
+        target: install-config
 
     - name: Install Apache configuration for Nagios
       copy:
@@ -132,13 +131,11 @@
       command: /usr/local/nagios/bin/nagios -v /usr/local/nagios/etc/nagios.cfg
 
     - name: Set Nagios admin password
-      expect:
-        command: htpasswd -c /usr/local/nagios/etc/htpasswd.users nagiosadmin
-        responses:
-          'Password:': "H@mp51r3-Adm1n\n"
-          'Re-type password:': "H@mp51r3-Adm1n\n"
+      command: htpasswd -c /usr/local/nagios/etc/htpasswd.users nagiosadmin
+      args:
+        stdin: "H@mp51r3-Adm1n"
       register: htpasswd_result
-      failed_when: "'password updated successfully' not in htpasswd_result.stdout"
+      failed_when: "'added' not in htpasswd_result.stdout"
 
     - name: Enable and restart Nagios and Apache services
       systemd:
@@ -148,4 +145,3 @@
       loop:
         - nagios
         - apache2
-
