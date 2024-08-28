@@ -41,6 +41,11 @@
         enabled: yes
         state: started
 
+    - name: Install required Python package for MySQL modules
+      apt:
+        name: python3-pymysql
+        state: present
+
     - name: Restart Apache to apply PHP configuration
       systemd:
         name: apache2
