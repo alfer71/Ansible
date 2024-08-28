@@ -33,21 +33,16 @@
           - gettext
         state: present
 
-    - name: Create Nagios user and group
+    - name: Create Nagios user
       user:
         name: nagios
         shell: /bin/bash
         create_home: yes
 
-    - name: Check if nagcmd group exists
-      stat:
-        path: /etc/group
-      register: nagcmd_group_check
-
     - name: Create nagcmd group
       group:
         name: nagcmd
-      when: "'nagcmd' not in nagcmd_group_check.stat"
+        state: present
 
     - name: Add nagios user to nagcmd group
       user:
@@ -78,29 +73,29 @@
         chdir: /tmp/nagios-4.5.4
 
     - name: Compile Nagios
-      make:
+      command: make all
+      args:
         chdir: /tmp/nagios-4.5.4
-        target: all
 
     - name: Install Nagios core binaries and web interface files
-      make:
+      command: make install
+      args:
         chdir: /tmp/nagios-4.5.4
-        target: install
 
     - name: Install Nagios command mode
-      make:
+      command: make install-commandmode
+      args:
         chdir: /tmp/nagios-4.5.4
-        target: install-commandmode
 
     - name: Install Nagios init script
-      make:
+      command: make install-init
+      args:
         chdir: /tmp/nagios-4.5.4
-        target: install-init
 
     - name: Install Nagios config files
-      make:
+      command: make install-config
+      args:
         chdir: /tmp/nagios-4.5.4
-        target: install-config
 
     - name: Install Apache configuration for Nagios
       copy:
@@ -137,11 +132,13 @@
       command: /usr/local/nagios/bin/nagios -v /usr/local/nagios/etc/nagios.cfg
 
     - name: Set Nagios admin password
-      command: htpasswd -c /usr/local/nagios/etc/htpasswd.users nagiosadmin
-      args:
-        stdin: "H@mp51r3-Adm1n"
+      expect:
+        command: htpasswd -c /usr/local/nagios/etc/htpasswd.users nagiosadmin
+        responses:
+          'Password:': "H@mp51r3-Adm1n\n"
+          'Re-type password:': "H@mp51r3-Adm1n\n"
       register: htpasswd_result
-      failed_when: "'added' not in htpasswd_result.stdout"
+      failed_when: "'password updated successfully' not in htpasswd_result.stdout"
 
     - name: Enable and restart Nagios and Apache services
       systemd:
@@ -151,3 +148,4 @@
       loop:
         - nagios
         - apache2
+
