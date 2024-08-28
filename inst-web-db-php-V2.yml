@@ -4,7 +4,6 @@
   become: yes
 
   tasks:
-
     - name: Update apt cache
       apt:
         update_cache: yes
@@ -14,21 +13,11 @@
         name: apache2
         state: present
 
-    - name: Check if Apache was installed
-      shell: dpkg -l | grep apache2
-      register: apache_installed
-      ignore_errors: yes
-
-    - name: Debug Apache Installation
-      debug:
-        var: apache_installed.stdout_lines
-
-    - name: Ensure Apache is started and enabled
+    - name: Ensure Apache is started and enabled at boot
       systemd:
         name: apache2
         enabled: yes
         state: started
-      when: apache_installed.rc == 0
 
     - name: Install MySQL
       apt:
