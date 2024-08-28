@@ -39,13 +39,15 @@
         shell: /bin/bash
         create_home: yes
 
+    - name: Check if nagcmd group exists
+      stat:
+        path: /etc/group
+      register: nagcmd_group_check
+
     - name: Create nagcmd group
       group:
         name: nagcmd
-      when: nagcmd_group.stat.exists == False
-      register: nagcmd_group
-      stat:
-        path: /etc/group
+      when: "'nagcmd' not in nagcmd_group_check.stat"
 
     - name: Add nagios user to nagcmd group
       user:
