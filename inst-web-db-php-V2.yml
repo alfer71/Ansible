@@ -45,8 +45,7 @@
       systemd:
         name: apache2
         state: restarted
-      when: apache_installed.rc == 0
-
+        
     - name: Set MySQL root password
       mysql_user:
         name: root
