@@ -1,6 +1,6 @@
 ---
 - name: Install Nagios on Ubuntu 22.04
-  hosts: nagioswebserver
+  hosts: awssanbox
   become: yes
 
   tasks:
