@@ -1,0 +1,151 @@
+---
+- name: Install Nagios on Ubuntu 24.04
+  hosts: awssanbox
+  become: yes
+
+  tasks:
+    - name: Update and upgrade the system
+      apt:
+        update_cache: yes
+        upgrade: dist
+
+    - name: Install prerequisites
+      apt:
+        name:
+          - autoconf
+          - gcc
+          - libc6
+          - make
+          - wget
+          - unzip
+          - apache2
+          - apache2-utils
+          - php
+          - libgd-dev
+          - libmcrypt-dev
+          - libssl-dev
+          - bc
+          - gawk
+          - dc
+          - build-essential
+          - snmp
+          - libnet-snmp-perl
+          - gettext
+        state: present
+
+    - name: Create Nagios user and group
+      user:
+        name: nagios
+        shell: /bin/bash
+        create_home: yes
+
+    - name: Create nagcmd group
+      group:
+        name: nagcmd
+      when: nagcmd_group.stat.exists == False
+      register: nagcmd_group
+      stat:
+        path: /etc/group
+
+    - name: Add nagios user to nagcmd group
+      user:
+        name: nagios
+        groups: nagcmd
+        append: yes
+
+    - name: Add www-data user to nagcmd group
+      user:
+        name: www-data
+        groups: nagcmd
+        append: yes
+
+    - name: Download Nagios source code
+      get_url:
+        url: https://assets.nagios.com/downloads/nagioscore/releases/nagios-4.5.4.tar.gz
+        dest: /tmp/nagios-4.5.4.tar.gz
+
+    - name: Extract Nagios source code
+      unarchive:
+        src: /tmp/nagios-4.5.4.tar.gz
+        dest: /tmp
+        remote_src: yes
+
+    - name: Configure Nagios
+      command: ./configure --with-nagios-group=nagios --with-command-group=nagcmd
+      args:
+        chdir: /tmp/nagios-4.5.4
+
+    - name: Compile Nagios
+      make:
+        chdir: /tmp/nagios-4.5.4
+        target: all
+
+    - name: Install Nagios core binaries and web interface files
+      make:
+        chdir: /tmp/nagios-4.5.4
+        target: install
+
+    - name: Install Nagios command mode
+      make:
+        chdir: /tmp/nagios-4.5.4
+        target: install-commandmode
+
+    - name: Install Nagios init script
+      make:
+        chdir: /tmp/nagios-4.5.4
+        target: install-init
+
+    - name: Install Nagios config files
+      make:
+        chdir: /tmp/nagios-4.5.4
+        target: install-config
+
+    - name: Install Apache configuration for Nagios
+      copy:
+        src: /tmp/nagios-4.5.4/sample-config/httpd.conf
+        dest: /etc/apache2/sites-available/nagios.conf
+        mode: '0644'
+
+    - name: Enable Nagios site in Apache
+      file:
+        src: /etc/apache2/sites-available/nagios.conf
+        dest: /etc/apache2/sites-enabled/nagios.conf
+        state: link
+
+    - name: Enable CGI and Rewrite modules in Apache
+      apache2_module:
+        name: "{{ item }}"
+        state: present
+      loop:
+        - cgi
+        - rewrite
+
+    - name: Install Nagios plugins
+      apt:
+        name: nagios-plugins
+        state: present
+
+    - name: Copy Nagios plugins to the correct directory
+      copy:
+        src: /usr/lib/nagios/plugins/
+        dest: /usr/local/nagios/libexec/
+        remote_src: yes
+
+    - name: Verify Nagios configuration
+      command: /usr/local/nagios/bin/nagios -v /usr/local/nagios/etc/nagios.cfg
+
+    - name: Set Nagios admin password
+      command: htpasswd -c /usr/local/nagios/etc/htpasswd.users nagiosadmin
+      args:
+        stdin: "H@mp51r3-Adm1n"
+      register: htpasswd_result
+      failed_when: "'added' not in htpasswd_result.stdout"
+
+    - name: Enable and restart Nagios and Apache services
+      systemd:
+        name: "{{ item }}"
+        enabled: yes
+        state: restarted
+      loop:
+        - nagios
+        - apache2
