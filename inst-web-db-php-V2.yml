@@ -1,6 +1,6 @@
 ---
 - name: Install Apache, MySQL, and PHP on Ubuntu 22.04
-  hosts: nagioswebserver
+  hosts: awssanbox
   become: yes
 
   tasks:
