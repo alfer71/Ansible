@@ -9,5 +9,5 @@
 3. Delete AWS EC2 Linux Ubuntu Instance
    - terrraform-destroy.yml
 
-4. Install dmidecode package in Ubuntu servers
+4. Install dmidecode package in Ubuntu servers to get Vm's UUID's 
    - inst-dmidecode.yml
