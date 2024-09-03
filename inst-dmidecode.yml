@@ -1,0 +1,24 @@
+---
+- name: Ensure dmidecode is installed on Ubuntu servers
+  hosts: hampshireservers
+  gather_facts: yes
+  remote_user: afITG
+  become: yes
+  tasks:
+    - name: Check if dmidecode is installed
+      ansible.builtin.shell: dpkg-query -W -f='${Status}' dmidecode | grep "install ok installed"
+      register: dmidecode_installed
+      ignore_errors: yes
+
+    - name: Install dmidecode if not installed
+      ansible.builtin.apt:
+        name: dmidecode
+        state: present
+      when: dmidecode_installed.rc != 0
+      notify:
+        - Report installation
+
+  handlers:
+    - name: Report installation
+      ansible.builtin.debug:
+        msg: "dmidecode was installed on {{ inventory_hostname }}"
