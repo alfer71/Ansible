@@ -1,6 +1,6 @@
 ---
 - name: Ensure dmidecode is installed on Ubuntu servers
-  hosts: hampshireservers
+  hosts: hampsserversinstpkg
   gather_facts: yes
   remote_user: afITG
   become: yes
