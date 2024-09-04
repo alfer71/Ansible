@@ -4,10 +4,16 @@
   remote_user: afernandez
   become: yes
   tasks:
+    - name: Unset release version lock (if applicable)
+      command: subscription-manager release --unset
+      become: yes
+      ignore_errors: yes
+
     - name: Update all packages to the latest version on RHEL 8.9
       dnf:
         name: "*"
         state: latest
+      become: yes
       register: dnf_update_status
 
     - name: Remove packages not needed anymore
