@@ -1,0 +1,12 @@
+---
+- name: Run Security Update Information on RHEL 8 Servers
+  hosts: chkcveugaservers
+  become: yes
+  tasks:
+    - name: Run dnf updateinfo list sec for Important and Critical security updates
+      shell: "dnf updateinfo list sec --sec-severity={Important,Critical}"
+      register: security_updates
+
+    - name: Print security updates
+      debug:
+        msg: "{{ security_updates.stdout }}"
