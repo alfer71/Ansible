@@ -1,0 +1,30 @@
+---
+- hosts: prccnonprodservers
+  gather_facts: yes
+  remote_user: afernandez
+  become: yes
+  tasks:
+    - name: Unset release version lock (if applicable)
+      command: subscription-manager release --unset
+      ignore_errors: yes
+
+    - name: Update all packages to the latest version on RHEL 8.9
+      dnf:
+        name: "*"
+        state: latest
+      register: dnf_update_status
+
+    - name: Remove packages not needed anymore
+      dnf:
+        autoremove: yes
+
+    - name: Reboot server if required
+      reboot:
+        msg: "Rebooting for kernel updates"
+        reboot_timeout: 600
+      when: dnf_update_status is changed
+
+    - name: Display the output that the system is patched
+      debug:
+        msg: "The system {{ inventory_hostname }} is successfully patched to the latest updates"
+      when: dnf_update_status is changed
