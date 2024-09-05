@@ -1,0 +1,13 @@
+---
+- hosts: prccnonprodservers
+  gather_facts: yes
+  remote_user: afernandez
+  become: yes
+  become_method: sudo
+  tasks:
+    - name: Reboot the RHEL 8 servers
+      reboot:
+        msg: "Reboot initiated by Ansible playbook"
+        reboot_timeout: 600
+      become: yes
+      become_user: root  # Ensure the task runs as root
