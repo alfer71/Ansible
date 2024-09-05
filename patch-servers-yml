@@ -16,7 +16,8 @@
     - name: Remove packages not needed anymore
       dnf:
         autoremove: yes
-      become: yes  # Ensure elevated privileges
+      become: yes
+      become_user: root  # Ensure running as root for autoremove
 
     - name: Reboot server if required
       reboot:
@@ -24,6 +25,7 @@
         reboot_timeout: 600
       when: dnf_update_status is changed
       become: yes
+      become_user: root  # Ensure reboot runs as root
 
     - name: Display the output that the system is patched
       debug:
