@@ -3,23 +3,27 @@
   gather_facts: yes
   remote_user: afernandez
   become: yes
+  become_method: sudo  # Explicitly using sudo as the become method
   tasks:
     - name: Update all packages to the latest version on RHEL 8.9
       dnf:
         name: "*"
         state: latest
       become: yes
+      become_user: root  # Explicitly stating to become root for this task
       register: dnf_update_status
 
     - name: Remove packages not needed anymore
       dnf:
         autoremove: yes
+      become: yes  # Ensure elevated privileges
 
     - name: Reboot server if required
       reboot:
         msg: "Rebooting for kernel updates"
         reboot_timeout: 600
       when: dnf_update_status is changed
+      become: yes
 
     - name: Display the output that the system is patched
       debug:
