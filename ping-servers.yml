@@ -1,0 +1,6 @@
+---
+- name: Ping all servers in the inventory
+  hosts: hiramprodservers
+  tasks:
+    - name: Ping the server
+      ping:
