@@ -1,0 +1,37 @@
+---
+- name: System Cleanup, Update, Reboot and Display Hostname
+  hosts: hiramprodservers
+  tasks:
+
+    - name: Clean package cache
+      ansible.builtin.command: dnf clean all
+
+    - name: Remove old kernels, keeping only the latest 2
+      ansible.builtin.command: |
+        package-cleanup --oldkernels --count=2
+      ignore_errors: yes
+
+    - name: Update all packages
+      ansible.builtin.yum:
+        name: '*'
+        state: latest
+
+    - name: Reboot the server
+      ansible.builtin.reboot:
+
+    - name: Wait for server to be back up
+      ansible.builtin.wait_for_connection:
+        delay: 30
+        timeout: 300
+
+    - name: Get the uptime of the server
+      ansible.builtin.command: uptime
+      register: uptime_output
+
+    - name: Get the hostname of the server
+      ansible.builtin.command: hostname
+      register: hostname_output
+
+    - name: Display hostname and uptime
+      ansible.builtin.debug:
+        msg: "The server {{ hostname_output.stdout }} has been patched. Uptime: {{ uptime_output.stdout }}"
