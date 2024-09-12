@@ -132,7 +132,7 @@
       command: /usr/local/nagios/bin/nagios -v /usr/local/nagios/etc/nagios.cfg
 
     - name: Set Nagios admin password
-      command: htpasswd -c /usr/local/nagios/etc/htpasswd.users nagiosadmin
+      command: htpasswd -b -c /usr/local/nagios/etc/htpasswd.users nagiosadmin
       args:
         stdin: "H@mp51r3-Adm1n"
       register: htpasswd_result
