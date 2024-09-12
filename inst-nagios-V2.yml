@@ -101,6 +101,7 @@
         src: /tmp/nagios-4.5.4/sample-config/httpd.conf
         dest: /etc/apache2/sites-available/nagios.conf
         mode: '0644'
+        remote_src: yes
 
     - name: Enable Nagios site in Apache
       file:
