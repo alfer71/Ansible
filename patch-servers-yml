@@ -9,10 +9,10 @@
     - name: Clean package cache
       ansible.builtin.command: dnf clean all
 
-    - name: Remove old kernels, keep the latest two
-      command: dnf remove -y $(dnf repoquery --installonly --latest-limit=-2 -q)
-      args:
-        warn: false
+    - name: Remove old kernels, keeping only the latest 2
+      ansible.builtin.command: |
+        package-cleanup --oldkernels --count=2
+      ignore_errors: yes
 
     - name: Update all packages to the latest version on RHEL 8.10
       dnf:
