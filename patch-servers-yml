@@ -11,11 +11,15 @@
         name: "*"
         autoremove: yes
         state: absent
+      become: yes
+      become_user: root
 
     - name: Clean DNF cache
       dnf:
         name: "*"
         clean: all
+      become: yes
+      become_user: root
 
     - name: Remove old kernels, keep the latest two
       command: dnf remove -y $(dnf repoquery --installonly --latest-limit=-2 -q)
