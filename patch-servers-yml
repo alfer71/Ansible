@@ -3,22 +3,33 @@
   gather_facts: yes
   remote_user: afernandez
   become: yes
-  become_method: sudo  # Explicitly using sudo as the become method
+  become_method: sudo
   tasks:
+    - name: Remove unnecessary packages (autoremove)
+      dnf:
+        name: "*"
+        autoremove: yes
+        state: absent
+    - name: Clean DNF cache
+      dnf:
+        name: "*"
+        clean: all
+    - name: Remove old kernels, keep the latest two
+      command: dnf remove -y $(dnf repoquery --installonly --latest-limit=-2 -q)
+      args:
+        warn: false
     - name: Update all packages to the latest version on RHEL 8.9
       dnf:
         name: "*"
         state: latest
       become: yes
-      become_user: root  # Explicitly stating to become root for this task
+      become_user: root
       register: dnf_update_status
-
     - name: Remove packages not needed anymore
       dnf:
         autoremove: yes
       become: yes
-      become_user: root  # Ensure running as root for autoremove
-
+      become_user: root
     - name: Reboot server if required
       reboot:
         msg: "Rebooting for kernel updates"
@@ -26,7 +37,6 @@
       when: dnf_update_status is changed
       become: yes
       become_user: root  # Ensure reboot runs as root
-
     - name: Display the output that the system is patched
       debug:
         msg: "The system {{ inventory_hostname }} is successfully patched to the latest updates"
