@@ -6,13 +6,8 @@
   become_method: sudo
 
   tasks:
-    - name: Remove unnecessary packages (autoremove)
-      dnf:
-        name: "*"
-        autoremove: yes
-        state: absent
-      become: yes
-      become_user: root
+    - name: Clean package cache
+      ansible.builtin.command: dnf clean all
 
     - name: Clean DNF cache
       dnf:
@@ -33,12 +28,6 @@
       become: yes
       become_user: root
       register: dnf_update_status
-
-    - name: Remove packages not needed anymore
-      dnf:
-        autoremove: yes
-      become: yes
-      become_user: root
 
     - name: Reboot server if required
       reboot:
