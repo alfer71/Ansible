@@ -6,11 +6,6 @@
   become_method: sudo
 
   tasks:
-    - name: Ensure dnf-utils is installed for repoquery
-      dnf:
-        name: dnf-utils
-        state: present
-
     - name: Remove unnecessary packages (autoremove)
       dnf:
         name: "*"
