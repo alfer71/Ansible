@@ -1,6 +1,6 @@
 ---
 - name: Gather information from RHEL8 server and create web pages
-  hosts: prccnonprodservers
+  hosts: prccprodservers
   remote_user: afernandez
   become_method: sudo
   become: yes
