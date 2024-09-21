@@ -1,5 +1,5 @@
 ---
-- hosts: prccnonprodservers
+- hosts: prccprodservers
   gather_facts: yes
   remote_user: afernandez
   become: yes
