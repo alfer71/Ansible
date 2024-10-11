@@ -3,7 +3,7 @@
   hosts: uhartprodservers
   remote_user: root
   vars:
-    dest_base_path: "/tmp/html-report/prcc"
+    dest_base_path: "/tmp/html-report/uhart"
     src_path: "/tmp/server_info"
     current_date: "{{ lookup('pipe', 'date +%Y-%m-%d') }}"
 
