@@ -1,6 +1,6 @@
 ---
 - name: Gather information from RHEL8 server and create web pages
-  hosts: uhartnonprodservers
+  hosts: uhartprodservers
   remote_user: root
   vars:
     dest_base_path: "/tmp/html-report/prcc"
