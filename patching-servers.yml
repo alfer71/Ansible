@@ -7,7 +7,7 @@
     - name: Clean package cache
       ansible.builtin.command: dnf clean all
 
-    - name: Remove old kernels, keeping only the latest 2
+    - name: Remove old kernels, keeping only the latest 1
       ansible.builtin.command: |
         package-cleanup --oldkernels --count=1
       ignore_errors: yes
