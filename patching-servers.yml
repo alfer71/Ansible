@@ -9,7 +9,7 @@
 
     - name: Remove old kernels, keeping only the latest 2
       ansible.builtin.command: |
-        package-cleanup --oldkernels --count=2
+        package-cleanup --oldkernels --count=1
       ignore_errors: yes
 
     - name: Update all packages to the latest version on RHEL 8.10
