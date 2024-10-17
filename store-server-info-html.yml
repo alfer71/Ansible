@@ -1,7 +1,7 @@
 ---
 - name: Gather information from RHEL8 server and create web pages
   hosts: rbcnonprodservers
-  remote_user: root
+  remote_user: jcoronaep
   vars:
     dest_base_path: "/tmp/html-report/rbc"
     src_path: "/tmp/server_info"
