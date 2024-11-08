@@ -1,1 +1,6 @@
-MGCCC_Prod_Servers
+---
+- name: Ping all servers in the inventory
+  hosts: MGCCC_Prod_Servers
+  tasks:
+    - name: Ping the server
+      ping:
