@@ -1,5 +1,5 @@
 ---
-- hosts: prccprodservers
+- hosts: MGCCC_Prod_Servers
   gather_facts: yes
   remote_user: afernandez
   become: yes
