@@ -1,7 +1,7 @@
 ---
 - hosts: MGCCC_Prod_Servers
   gather_facts: yes
-  remote_user: afernandez
+  remote_user: jcorona
   become: yes
   become_method: sudo
 
