@@ -1,1 +1,6 @@
-asdfasdfasdf
+---
+- name: Ping all servers in the inventory
+  hosts: rbcprodservers
+  tasks:
+    - name: Ping the server
+      ping:
