@@ -1,1 +1,7 @@
-asdfasdf
+---
+- name: Ping all servers in the inventory
+  hosts: prccnonprodservers
+  tasks:
+    - name: Ping the server
+      ping:
+
