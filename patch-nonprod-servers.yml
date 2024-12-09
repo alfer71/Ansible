@@ -32,14 +32,7 @@
         state: latest
       become: yes
       become_user: root
-
-    - name: Check if running as root
-      command: whoami
-      register: whoami_output
-
-    - name: Debug whoami output
-      debug:
-        var: whoami_output.stdout
+      register: dnf_update_status
 
     - name: Reboot server if required
       reboot:
