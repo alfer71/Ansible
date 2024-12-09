@@ -28,7 +28,15 @@
       ansible.builtin.dnf:
         name: "*"
         state: latest
-      register: dnf_update_status
+      become: yes
+
+    - name: Check if running as root
+      command: whoami
+      register: whoami_output
+
+    - name: Debug whoami output
+      debug:
+        var: whoami_output.stdout
 
     - name: Reboot server if required
       reboot:
