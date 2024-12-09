@@ -6,20 +6,28 @@
   become_method: sudo
 
   tasks:
+    - name: Verify the OS is RHEL 8.10
+      ansible.builtin.assert:
+        that:
+          - ansible_facts['distribution'] == 'RedHat'
+          - ansible_facts['distribution_major_version'] == '8'
+          - ansible_facts['distribution_version'] == '8.10'
+        fail_msg: "This playbook is only compatible with RHEL 8.10."
+
     - name: Clean package cache
       ansible.builtin.command: dnf clean all
+      become: yes
 
     - name: Remove old kernels, keeping only the latest 2
-      ansible.builtin.command: |
-        package-cleanup --oldkernels --count=2
+      ansible.builtin.command:
+        cmd: package-cleanup --oldkernels --count=2
       ignore_errors: yes
+      become: yes
 
-    - name: Update all packages to the latest version on RHEL 8.10
-      dnf:
+    - name: Update all packages to the latest version
+      ansible.builtin.dnf:
         name: "*"
         state: latest
-      become: yes
-      become_user: root
       register: dnf_update_status
 
     - name: Reboot server if required
@@ -27,10 +35,8 @@
         msg: "Rebooting for kernel updates"
         reboot_timeout: 600
       when: dnf_update_status is changed
-      become: yes
-      become_user: root
 
     - name: Display the output that the system is patched
       debug:
-        msg: "The system {{ inventory_hostname }} is successfully patched to the latest updates"
+        msg: "The system {{ ansible_facts.hostname }} is successfully patched to the latest updates"
       when: dnf_update_status is changed
