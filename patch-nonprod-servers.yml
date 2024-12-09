@@ -46,6 +46,8 @@
         msg: "Rebooting for kernel updates"
         reboot_timeout: 600
       when: dnf_update_status is changed
+      become: yes
+      become_user: root
 
     - name: Display the output that the system is patched
       debug:
